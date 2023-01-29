@@ -1,0 +1,13 @@
+[project]
+name = "did"
+version = "0.0.1"
+
+[build-system]
+requires = ['vulcan-py']
+build-backend = "vulcan.build_backend"
+
+[[tool.vulcan.shiv]]
+bin_name = "did"
+entry_point = "did.main:main"
+interpreter="/usr/bin/env python3"
+extra_args="--compile-pyc"
