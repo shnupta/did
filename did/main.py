@@ -6,6 +6,7 @@ import argparse
 import datetime
 import calendar
 from subprocess import call
+from colors import Colors
 
 DID_HOME = os.path.expanduser("~/.did")
 DID_DATA = f"{DID_HOME}/data"
@@ -17,6 +18,19 @@ def get_copied_file_location(day: datetime.date) -> str:
 def get_file_location(day: datetime.date) -> str:
     return f"{DID_DATA}/{day.year}/{day.isocalendar()[1]}/{day.weekday()}.md"
 
+def colorise(line: str) -> str:
+    string = ""
+    if re.search("^# ", line):
+        string += f"{Colors.BOLD}{Colors.BLUE}"
+    elif re.search("^- \[ \]", line):
+        string += f"{Colors.RED}"
+    elif re.search("^- \[X\]", line):
+        string += f"{Colors.GREEN}"
+    elif re.search("^\s+-", line):
+        string += f"{Colors.YELLOW}"
+
+    return string + f"{line[:-1]}{Colors.END}"
+
 def show_day(date: datetime.date):
     file_location = get_file_location(date)
     copied_file_location = get_copied_file_location(date)
@@ -27,7 +41,8 @@ def show_day(date: datetime.date):
         print(f"You did nothing on {date}")
     else:
         with open(file_location) as file:
-            print(file.read())
+            for line in file:
+                print(colorise(line))
 
 def show_week(date: datetime.date):
     week_path = f"{DID_DATA}/{date.year}/{date.isocalendar()[1]}"
@@ -65,26 +80,30 @@ def handle_date(date: str) -> None:
         show_day(get_last_weekday(5))
     elif (date == 'sunday' or date == 'sun'):
         show_day(get_last_weekday(6))
-    elif (date == 'thisweek'):
+    elif (date == 'thisweek' or date == 'week' or date == 'w'):
         show_week(today)
-    elif (date == 'lastweek'):
+    elif (date == 'lastweek' or date == 'lw'):
         show_week(today - datetime.timedelta(days=7))
     else:
-        show_day(datetime.date.fromisoformat(date))
+        try:
+            day = datetime.date.fromisoformat(date)
+            show_day(day)
+        except ValueError:
+            print(f'Invalid date format: {date}')
 
 def handle_search(search: str) -> None:
-    call(['grep', '-rni', search, DID_DATA])
+    call(['grep', '--color=auto', '-rni', search, DID_DATA])
 
 # Copy recent unfinished tasks to todays file if they aren't already present
 # If today is the first entry in this week, look at the previous week
 # Otherwise look through the previous files from this week
 def copy_unfinished_tasks_to_file(file: io.TextIOWrapper, today: datetime.date) -> None:
     copy_week = f"{DID_DATA}/{today.year}/{today.isocalendar()[1]}"
-    if (len([name for name in os.listdir(copy_week) if os.path.isfile(name)]) == 1):
+    if (len(os.listdir(copy_week)) == 1): # if we are making the first file of the week
         last_week = today - datetime.timedelta(days=7)
         copy_week = f"{DID_DATA}/{today.year}/{last_week.isocalendar()[1]}"
     for filename in os.scandir(copy_week):
-        if filename.is_file() and "copied-" not in filename.name and str(today.weekday()) not in filename.name:
+        if filename.is_file() and str(today.weekday()) not in filename.name and re.search("^[0-6].md", filename.name):
             with open(filename.path, 'r') as copy_file:
                 copy_notes = False
                 for line in copy_file:
