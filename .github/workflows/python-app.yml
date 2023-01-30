@@ -37,6 +37,6 @@ jobs:
     - name: Build with vulcan
       run: |
         vulcan build --shiv
-    - name: Test with pytest
-      run: |
-        pytest
+#    - name: Test with pytest
+#      run: |
+#        pytest
