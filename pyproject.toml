@@ -1,6 +1,6 @@
 [project]
 name = "did"
-version = "0.0.2"
+version = "0.0.3"
 
 [build-system]
 requires = ['vulcan-py']
