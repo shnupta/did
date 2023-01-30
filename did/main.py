@@ -6,7 +6,8 @@ import argparse
 import datetime
 import calendar
 from subprocess import call
-from colors import Colors
+
+from did.colors import Colors
 
 DID_HOME = os.path.expanduser("~/.did")
 DID_DATA = f"{DID_HOME}/data"
