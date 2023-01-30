@@ -2,6 +2,12 @@
 name = "did"
 version = "0.0.3"
 description = "what did i do?"
+authors = [{name="Casey Williams", email="caseyjw@mail.com"}]
+urls = {github="https://github.com/shnupta/did"}
+license = {text="MIT"}
+keywords = [ "time-management", "tasks", "productivity" ]
+readme = {file = "README.md", content-type = "text/markdown"}
+requires-python = ">=3.7"
 
 [build-system]
 requires = ['vulcan-py']
