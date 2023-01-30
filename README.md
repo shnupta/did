@@ -35,6 +35,8 @@ an example did file looks like this:
 - [X] I managed to do this today!
 ```
 
+[![asciicast](https://asciinema.org/a/6cZBkGB5zZzxxuKUDiLVn0xb6.svg)](https://asciinema.org/a/6cZBkGB5zZzxxuKUDiLVn0xb6)
+
 ## build
 this project uses [vulcan](https://github.com/optiver/vulcan-py):
 ```
