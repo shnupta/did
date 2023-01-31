@@ -1,6 +1,6 @@
 [project]
 name = "did-py"
-version = "0.0.6"
+version = "0.0.7"
 description = "what did i do?"
 authors = [{name="Casey Williams", email="caseyjw@mail.com"}]
 urls = {github="https://github.com/shnupta/did"}
