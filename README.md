@@ -2,7 +2,7 @@
 a simple task manager
 
 [![Build](https://github.com/shnupta/did/actions/workflows/python-app.yml/badge.svg)](https://github.com/shnupta/did/actions/workflows/python-app.yml)
-[![PyPI version](https://badge.fury.io/py/did-py.svg)](https://badge.fury.io/py/did-py)
+[![PyPI version](https://badge.fury.io/py/did-py.png)](https://badge.fury.io/py/did-py)
 
 ## install
 ```
