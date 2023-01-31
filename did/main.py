@@ -174,7 +174,7 @@ def did() -> None:
             copy_unfinished_tasks_to_file(file, today)
 
     # Open the editor
-    call([EDITOR, "+ normal GA", today_file])
+    subprocess.call([EDITOR, "+ normal GA", today_file])
 
 def handle_args(args: argparse.Namespace) -> None:
     if (args.date):
