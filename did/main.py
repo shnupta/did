@@ -13,6 +13,10 @@ DID_HOME = os.path.expanduser("~/.did")
 DID_DATA = f"{DID_HOME}/data"
 EDITOR = os.environ.get('EDITOR', 'vim')
 
+def get_date_header(date: datetime.date) -> str:
+    week = date.isocalendar()[1]
+    return f"# {calendar.day_name[date.weekday()]} {date.day} {calendar.month_name[date.month]} {date.year} - Week {week}" 
+
 def get_copied_file_location(day: datetime.date) -> str:
     return f"{DID_DATA}/{day.year}/{day.isocalendar()[1]}/copied-{day.weekday()}.md"
 
@@ -114,7 +118,7 @@ def prettify_grep_output(grep_output: str, search: str) -> None:
         year = int(filename_match.group('year'))
         week = int(filename_match.group('week'))
         day = int(filename_match.group('day')) + 1 # from iso takes days in 1-7 not 0-6
-        date = str(datetime.date.fromisocalendar(year, week, day))
+        date = datetime.date.fromisocalendar(year, week, day)
         text = line[filename_match.span()[1]:]
         search_match = re.search(search, text, re.IGNORECASE)
         search_span = search_match.span()
@@ -126,7 +130,7 @@ def prettify_grep_output(grep_output: str, search: str) -> None:
 
     output = ""
     for date in sorted(matched_dates, reverse=True):
-        output += Colors.CYAN + date + Colors.END + "\n"
+        output += Colors.CYAN + get_date_header(date) + Colors.END + "\n"
         for match in matched_dates[date]:
             output += match + '\n'
         output += '\n'
@@ -165,7 +169,7 @@ def did() -> None:
     today = datetime.date.today()
     week = today.isocalendar()[1]
     today_file = f"{DID_DATA}/{today.year}/{week}/{today.weekday()}.md"
-    today_header = f"# {calendar.day_name[today.weekday()]} {today.day} {calendar.month_name[today.month]} {today.year} - Week {week}" 
+    today_header = get_date_header(today)
 
     if (not os.path.exists(today_file)):
         os.makedirs(f"{DID_DATA}/{today.year}/{week}", exist_ok=True) # make the dirs if they don't exist
