@@ -5,7 +5,7 @@ import re
 import argparse
 import datetime
 import calendar
-from subprocess import call
+import subprocess
 
 from did.colors import Colors
 
@@ -22,7 +22,7 @@ def get_file_location(day: datetime.date) -> str:
 def colorise(line: str) -> str:
     string = ""
     if re.search("^# ", line):
-        string += f"{Colors.BOLD}{Colors.BLUE}"
+        string += f"{Colors.BOLD}{Colors.CYAN}"
     elif re.search("^- \[ \]", line):
         string += f"{Colors.RED}"
     elif re.search("^- \[X\]", line):
@@ -32,27 +32,41 @@ def colorise(line: str) -> str:
 
     return string + f"{line[:-1]}{Colors.END}"
 
-def show_day(date: datetime.date):
+def get_did_day_as_string(date: datetime.date) -> str:
+    output = ""
     file_location = get_file_location(date)
     copied_file_location = get_copied_file_location(date)
     if (os.path.exists(copied_file_location)):
         file_location = copied_file_location
 
     if (not os.path.exists(file_location)):
-        print(f"You did nothing on {date}")
+        output = f"You did nothing on {date}"
     else:
         with open(file_location) as file:
             for line in file:
-                print(colorise(line))
+                output += colorise(line) + '\n'
+    return output
 
-def show_week(date: datetime.date):
+def show_day(date: datetime.date) -> None:
+    output = get_did_day_as_string(date)
+    echo_out = subprocess.Popen(('echo', output), stdout=subprocess.PIPE)
+    subprocess.call(['less', '-R', '-F'], stdin=echo_out.stdout)
+
+def get_did_week_as_string(date: datetime.date) -> str:
+    output = ""
     week_path = f"{DID_DATA}/{date.year}/{date.isocalendar()[1]}"
     if (not os.path.exists(week_path)):
-        print(f"You did nothing in week {date.isocalendar()[1]}")
+        output = f"You did nothing in week {date.isocalendar()[1]}"
     else:
         for weekday in range(1,8):
             day = datetime.date.fromisocalendar(date.year, date.isocalendar()[1], weekday)
-            show_day(day)
+            output += get_did_day_as_string(day) + '\n'
+    return output
+
+def show_week(date: datetime.date) -> None:
+    output = get_did_week_as_string(date)
+    echo_out = subprocess.Popen(('echo', output), stdout=subprocess.PIPE)
+    subprocess.call(['less', '-R', '-F'], stdin=echo_out.stdout)
 
 def get_last_weekday(weekday: int) -> datetime.date:
     one_day = datetime.timedelta(days=1)
@@ -92,8 +106,38 @@ def handle_date(date: str) -> None:
         except ValueError:
             print(f'Invalid date format: {date}')
 
+def prettify_grep_output(grep_output: str, search: str) -> None:
+    matched_dates = {}
+    lines = grep_output.splitlines()
+    for line in lines:
+        filename_match = re.search('(?P<year>[0-9]+)/(?P<week>[0-9]+)/(?:copied-)?(?P<day>[0-6]).md:[0-9]+:', line)
+        year = int(filename_match.group('year'))
+        week = int(filename_match.group('week'))
+        day = int(filename_match.group('day')) + 1 # from iso takes days in 1-7 not 0-6
+        date = str(datetime.date.fromisocalendar(year, week, day))
+        text = line[filename_match.span()[1]:]
+        search_match = re.search(search, text, re.IGNORECASE)
+        search_span = search_match.span()
+        colorised_text = text[:search_span[0]] + Colors.RED + text[search_span[0]:search_span[1]] + Colors.END + text[search_span[1]:] 
+        if date in matched_dates:
+            matched_dates[date].append(colorised_text)
+        else:
+            matched_dates[date] = [colorised_text]
+
+    output = ""
+    for date in sorted(matched_dates, reverse=True):
+        output += Colors.CYAN + date + Colors.END + "\n"
+        for match in matched_dates[date]:
+            output += match + '\n'
+        output += '\n'
+    echo_out = subprocess.Popen(('echo', output), stdout=subprocess.PIPE)
+    subprocess.call(['less', '-R', '-F'], stdin=echo_out.stdout)
+
 def handle_search(search: str) -> None:
-    call(['grep', '--color=auto', '-rni', search, DID_DATA])
+    output = subprocess.run(['grep', '--color=auto', '-rni', search, DID_DATA], stdout=subprocess.PIPE).stdout.decode('utf-8')
+    if len(output) == 0:
+        return
+    prettify_grep_output(output, search)
 
 # Copy recent unfinished tasks to todays file if they aren't already present
 # If today is the first entry in this week, look at the previous week

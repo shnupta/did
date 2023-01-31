@@ -4,3 +4,5 @@ dist/
 build/
 .venv/
 .tox/
+*.pyc
+*.swp
