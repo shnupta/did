@@ -44,7 +44,7 @@ def get_did_day_as_string(date: datetime.date) -> str:
         file_location = copied_file_location
 
     if (not os.path.exists(file_location)):
-        output = f"You did nothing on {date}"
+        output = f"You did nothing on {date}\n"
     else:
         with open(file_location) as file:
             for line in file:
@@ -60,7 +60,7 @@ def get_did_week_as_string(date: datetime.date) -> str:
     output = ""
     week_path = f"{DID_DATA}/{date.year}/{date.isocalendar()[1]}"
     if (not os.path.exists(week_path)):
-        output = f"You did nothing in week {date.isocalendar()[1]}"
+        output = f"You did nothing in week {date.isocalendar()[1]}\n"
     else:
         for weekday in range(1,8):
             day = datetime.date.fromisocalendar(date.year, date.isocalendar()[1], weekday)
@@ -161,8 +161,10 @@ def copy_unfinished_tasks_to_file(file: io.TextIOWrapper, today: datetime.date) 
                     elif re.search("^- \[ \]", line):
                         copy_notes = True
                         file.write(line)
-                    else:
+                    elif re.search("^- \[X\]", line): # A completed task
                         copy_notes = False
+                    else: # Any other line type
+                        file.write(line)
             os.rename(filename.path, f"{copy_week}/copied-{filename.name}")
 
 def did() -> None:
