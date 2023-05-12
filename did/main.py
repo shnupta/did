@@ -159,6 +159,7 @@ def copy_unfinished_tasks_to_file(file: io.TextIOWrapper, today: datetime.date) 
                 completed_task = False
                 for line in copy_file:
                     if first_line:
+                        first_line = False
                         continue
                         
                     if not completed_task and copy_notes and re.search("^\s+-", line):
