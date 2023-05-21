@@ -155,26 +155,24 @@ def copy_unfinished_tasks_to_file(file: io.TextIOWrapper, today: datetime.date) 
         if filename.is_file() and str(today.weekday()) not in filename.name and re.search("^[0-6].md", filename.name):
             with open(filename.path, 'r') as copy_file:
                 first_line = True
-                copy_notes = False
                 completed_task = False
                 for line in copy_file:
                     if first_line:
                         first_line = False
                         continue
                         
-                    if not completed_task and copy_notes and re.search("^\s+-", line):
-                        file.write(line)
-                    elif re.search("^- \[ \]", line):
-                        copy_notes = True
+                    if re.search("^- \[ \]", line):
                         completed_task = False
                         file.write(line)
                     elif re.search("^- \[X\]", line): # A completed task
-                        copy_notes = False
                         completed_task = True
+                    elif re.search("^\s+-", line): # Indented line (note of a task)
+                        if not completed_task: # Don't copy notes of completed tasks
+                            file.write(line)
                     else: # Any other line type
                         file.write(line)
                         completed_task = False
-                        copy_notes = False
+                    
             os.rename(filename.path, f"{copy_week}/copied-{filename.name}")
 
 def did() -> None:
