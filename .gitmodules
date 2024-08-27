@@ -1,0 +1,4 @@
+[submodule "x_mastermyr"]
+	path = x_mastermyr
+	url = https://github.com/shnupta/mastermyr.git
+	branch = application
