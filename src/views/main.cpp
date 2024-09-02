@@ -8,7 +8,7 @@
 
 namespace Did::Views {
 
-ftxui::Component Main(Did::States::Main& state)
+ftxui::Component Main(Did::Models::Main& main_model)
 {
 	auto tasks = Views::Tasks();
 	auto overview = Views::Overview();

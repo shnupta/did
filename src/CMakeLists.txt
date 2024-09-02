@@ -8,4 +8,7 @@ target_link_libraries(didlib
 	ftxui::component
 	mastermyr::mastermyr
 	)
-target_include_directories(didlib PUBLIC .)
+target_include_directories(didlib PUBLIC 
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+	$<INSTALL_INTERFACE:include>
+)

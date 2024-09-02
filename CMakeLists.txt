@@ -16,6 +16,8 @@ FetchContent_Declare(ftxui
 )
 FetchContent_MakeAvailable(ftxui)
 
+find_package(RapidJSON REQUIRED)
+
 add_subdirectory(x_mastermyr)
 
 # libs
